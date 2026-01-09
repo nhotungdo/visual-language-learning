@@ -22,6 +22,7 @@
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .nav-buttons button {
@@ -43,6 +44,37 @@
 }
 
 .nav-buttons button.active {
+  background: white;
+  color: #667eea;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  margin-left: 16px;
+}
+
+.user-menu span {
+  font-weight: 600;
+}
+
+.user-menu button {
+  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid white;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.user-menu button:hover {
   background: white;
   color: #667eea;
 }

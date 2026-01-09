@@ -1,0 +1,283 @@
+import { useState } from 'react'
+import './AuthPage.css'
+
+function AuthPage({ onLogin, onBack }) {
+  const [activeTab, setActiveTab] = useState('login')
+  const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    rememberMe: false
+  })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+    setError('')
+  }
+
+  const validateForm = () => {
+    if (activeTab === 'register') {
+      if (!formData.fullName.trim()) {
+        setError('Vui lòng nhập họ tên')
+        return false
+      }
+    }
+
+    if (!formData.email.trim()) {
+      setError('Vui lòng nhập email')
+      return false
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      setError('Email không hợp lệ')
+      return false
+    }
+
+    if (!formData.password) {
+      setError('Vui lòng nhập mật khẩu')
+      return false
+    }
+
+    if (formData.password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự')
+      return false
+    }
+
+    if (activeTab === 'register') {
+      if (formData.password !== formData.confirmPassword) {
+        setError('Mật khẩu xác nhận không khớp')
+        return false
+      }
+    }
+
+    return true
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    setLoading(true)
+    setError('')
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // TODO: Replace with actual API call
+      console.log('Form submitted:', { activeTab, formData })
+      
+      // For now, just call onLogin to simulate successful login
+      onLogin({ email: formData.email, fullName: formData.fullName })
+    } catch (err) {
+      setError('Đã có lỗi xảy ra. Vui lòng thử lại.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleOAuthLogin = (provider) => {
+    console.log(`Login with ${provider}`)
+    // TODO: Implement OAuth login
+    setError(`Đăng nhập ${provider} sẽ được triển khai sau`)
+  }
+
+  const switchTab = (tab) => {
+    setActiveTab(tab)
+    setError('')
+    setFormData({
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      rememberMe: false
+    })
+  }
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+        {/* Left Side - Branding */}
+        <div className="auth-branding">
+          <div className="auth-logo">
+            <span>📚</span>
+            <span>Visual Language Learning</span>
+          </div>
+          <p className="auth-tagline">
+            Master IELTS & JLPT with AI-powered learning platform
+          </p>
+          <div className="auth-features">
+            <div className="auth-feature">
+              <div className="auth-feature-icon">✓</div>
+              <span>10,000+ vocabulary words</span>
+            </div>
+            <div className="auth-feature">
+              <div className="auth-feature-icon">✓</div>
+              <span>AI-powered feedback</span>
+            </div>
+            <div className="auth-feature">
+              <div className="auth-feature-icon">✓</div>
+              <span>Interactive practice tests</span>
+            </div>
+            <div className="auth-feature">
+              <div className="auth-feature-icon">✓</div>
+              <span>Track your progress</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Auth Form */}
+        <div className="auth-form-container">
+          <div className="auth-card">
+            {/* Tabs */}
+            <div className="auth-tabs">
+              <button
+                className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`}
+                onClick={() => switchTab('login')}
+              >
+                Đăng nhập
+              </button>
+              <button
+                className={`auth-tab ${activeTab === 'register' ? 'active' : ''}`}
+                onClick={() => switchTab('register')}
+              >
+                Đăng ký
+              </button>
+            </div>
+
+            {/* OAuth Buttons */}
+            <div className="oauth-buttons">
+              <button className="btn-oauth google" onClick={() => handleOAuthLogin('Google')}>
+                <span className="oauth-icon">🔵</span>
+                Tiếp tục với Google
+              </button>
+              <button className="btn-oauth facebook" onClick={() => handleOAuthLogin('Facebook')}>
+                <span className="oauth-icon">📘</span>
+                Tiếp tục với Facebook
+              </button>
+              <button className="btn-oauth apple" onClick={() => handleOAuthLogin('Apple')}>
+                <span className="oauth-icon">🍎</span>
+                Tiếp tục với Apple
+              </button>
+            </div>
+
+            <div className="divider">hoặc</div>
+
+            {/* Error Message */}
+            {error && <div className="error-message">{error}</div>}
+
+            {/* Form */}
+            <form className="auth-form" onSubmit={handleSubmit}>
+              {activeTab === 'register' && (
+                <div className="form-group">
+                  <label htmlFor="fullName">Họ và tên</label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    className="form-input"
+                    placeholder="Nguyễn Văn A"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="form-input"
+                  placeholder="example@email.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Mật khẩu</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    className="form-input"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
+              </div>
+
+              {activeTab === 'register' && (
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Xác nhận mật khẩu</label>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    className="form-input"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'login' && (
+                <>
+                  <label className="form-checkbox">
+                    <input
+                      type="checkbox"
+                      name="rememberMe"
+                      checked={formData.rememberMe}
+                      onChange={handleInputChange}
+                    />
+                    <span>Ghi nhớ đăng nhập</span>
+                  </label>
+                  <div className="forgot-password">
+                    <a href="#forgot">Quên mật khẩu?</a>
+                  </div>
+                </>
+              )}
+
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? 'Đang xử lý...' : activeTab === 'login' ? 'Đăng nhập' : 'Đăng ký'}
+              </button>
+            </form>
+
+            {/* Footer */}
+            {onBack && (
+              <div className="auth-footer">
+                <a href="#" onClick={(e) => { e.preventDefault(); onBack(); }}>
+                  ← Quay lại trang chủ
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default AuthPage

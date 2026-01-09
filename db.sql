@@ -17,6 +17,14 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    -- Refresh tokens for auth
+    refresh_token TEXT,
+    refresh_token_expiry_time TIMESTAMP,
+
+    -- User goals (optional)
+    target_language_id INT REFERENCES languages(id),
+    target_level_id INT REFERENCES levels(id),
+
     UNIQUE (provider, provider_user_id)
 );
 

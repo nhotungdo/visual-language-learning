@@ -6,6 +6,16 @@ function HomePage({ onGetStarted }) {
 
   return (
     <div className="homepage">
+      {/* Navigation Bar */}
+      <nav className="homepage-nav">
+        <div className="nav-content">
+          <div className="nav-logo">📚 Visual Language Learning</div>
+          <button className="btn-login" onClick={onGetStarted}>
+            Đăng nhập
+          </button>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">

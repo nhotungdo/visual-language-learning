@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import HomePage from './pages/HomePage'
+import AuthPage from './pages/AuthPage'
 import VocabularyCard from './components/VocabularyCard'
 import VocabularyList from './components/VocabularyList'
 import AddVocabulary from './components/AddVocabulary'
@@ -9,9 +10,10 @@ function App() {
   const [vocabularies, setVocabularies] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [view, setView] = useState('home') // 'home', 'flashcard', 'list', 'add'
+  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     if (view !== 'home') {
@@ -78,9 +80,24 @@ function App() {
     }
   }
 
+  const handleLogin = (userData) => {
+    setUser(userData)
+    setView('flashcard')
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    setView('home')
+  }
+
   // Show homepage
   if (view === 'home') {
-    return <HomePage onGetStarted={() => setView('flashcard')} />
+    return <HomePage onGetStarted={() => setView('auth')} />
+  }
+
+  // Show auth page
+  if (view === 'auth') {
+    return <AuthPage onLogin={handleLogin} onBack={() => setView('home')} />
   }
 
   if (loading) {
@@ -123,6 +140,12 @@ function App() {
           >
             Thêm từ
           </button>
+          {user && (
+            <div className="user-menu">
+              <span>👤 {user.fullName || user.email}</span>
+              <button onClick={handleLogout}>Đăng xuất</button>
+            </div>
+          )}
         </nav>
       </header>
 

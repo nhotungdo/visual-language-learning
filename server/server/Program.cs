@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +28,31 @@ builder.Services.AddCors(options =>
         });
 });
 
-var app = builder.Build();
+
+// Add JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "super_secret_key_1234567890123456"))
+    };
+});
 
 // Configure the HTTP request pipeline
+var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -36,71 +61,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowReactApp");
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
-
-// API Endpoints
-app.MapGet("/api/vocabularies", async (AppDbContext db) =>
-{
-    return await db.Vocabularies.ToListAsync();
-})
-.WithName("GetVocabularies")
-.WithOpenApi();
-
-app.MapGet("/api/vocabularies/{id}", async (int id, AppDbContext db) =>
-{
-    var vocabulary = await db.Vocabularies.FindAsync(id);
-    return vocabulary is not null ? Results.Ok(vocabulary) : Results.NotFound();
-})
-.WithName("GetVocabularyById")
-.WithOpenApi();
-
-app.MapGet("/api/vocabularies/category/{category}", async (string category, AppDbContext db) =>
-{
-    var vocabularies = await db.Vocabularies
-        .Where(v => v.Category.ToLower() == category.ToLower())
-        .ToListAsync();
-    return vocabularies;
-})
-.WithName("GetVocabulariesByCategory")
-.WithOpenApi();
-
-app.MapPost("/api/vocabularies", async (Vocabulary vocabulary, AppDbContext db) =>
-{
-    db.Vocabularies.Add(vocabulary);
-    await db.SaveChangesAsync();
-    return Results.Created($"/api/vocabularies/{vocabulary.Id}", vocabulary);
-})
-.WithName("CreateVocabulary")
-.WithOpenApi();
-
-app.MapPut("/api/vocabularies/{id}", async (int id, Vocabulary updatedVocabulary, AppDbContext db) =>
-{
-    var vocabulary = await db.Vocabularies.FindAsync(id);
-    if (vocabulary is null) return Results.NotFound();
-
-    vocabulary.Word = updatedVocabulary.Word;
-    vocabulary.Translation = updatedVocabulary.Translation;
-    vocabulary.ImageUrl = updatedVocabulary.ImageUrl;
-    vocabulary.Example = updatedVocabulary.Example;
-    vocabulary.Category = updatedVocabulary.Category;
-
-    await db.SaveChangesAsync();
-    return Results.Ok(vocabulary);
-})
-.WithName("UpdateVocabulary")
-.WithOpenApi();
-
-app.MapDelete("/api/vocabularies/{id}", async (int id, AppDbContext db) =>
-{
-    var vocabulary = await db.Vocabularies.FindAsync(id);
-    if (vocabulary is null) return Results.NotFound();
-
-    db.Vocabularies.Remove(vocabulary);
-    await db.SaveChangesAsync();
-    return Results.NoContent();
-})
-.WithName("DeleteVocabulary")
-.WithOpenApi();
 
 app.MapControllers();
 
