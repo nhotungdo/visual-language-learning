@@ -26,13 +26,124 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        try
+        {
+            // Check if user already exists
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (existingUser != null)
+            {
+                return BadRequest(new { message = "Email đã được sử dụng" });
+            }
+
+            // Hash password
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            // Create new user
+            var user = new User
+            {
+                Email = request.Email,
+                FullName = request.FullName,
+                PasswordHash = passwordHash,
+                Provider = "email",
+                ProviderUserId = request.Email, // Use email as provider user ID for email auth
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var token = GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _context.SaveChangesAsync();
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    AvatarUrl = user.AvatarUrl,
+                    TargetLanguageId = user.TargetLanguageId,
+                    TargetLevelId = user.TargetLevelId
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Đã có lỗi xảy ra: " + ex.Message });
+        }
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            
+            if (user == null || user.Provider != "email")
+            {
+                return BadRequest(new { message = "Email hoặc mật khẩu không đúng" });
+            }
+
+            // Verify password
+            if (string.IsNullOrEmpty(user.PasswordHash) || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return BadRequest(new { message = "Email hoặc mật khẩu không đúng" });
+            }
+
+            var token = GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    AvatarUrl = user.AvatarUrl,
+                    TargetLanguageId = user.TargetLanguageId,
+                    TargetLevelId = user.TargetLevelId
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Đã có lỗi xảy ra: " + ex.Message });
+        }
+    }
+
     [HttpPost("google-login")]
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
         try
         {
-            // You might want to pass validation settings here (e.g. Audience)
-            var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+            // Validate Google token with Client ID from configuration
+            var googleClientId = _configuration["Google:ClientId"];
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new[] { googleClientId }
+            };
+            
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
             
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
             
@@ -53,9 +164,11 @@ public class AuthController : ControllerBase
             }
             else
             {
-                // Optional: Update avatar or name if changed on Google
-                // user.AvatarUrl = payload.Picture;
-                // await _context.SaveChangesAsync();
+                // Update avatar and name if changed on Google
+                user.AvatarUrl = payload.Picture;
+                user.FullName = payload.Name;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
             }
 
             var token = GenerateJwtToken(user);
@@ -80,13 +193,13 @@ public class AuthController : ControllerBase
                 }
             });
         }
-        catch (InvalidJwtException)
+        catch (InvalidJwtException ex)
         {
-            return BadRequest("Invalid Google Token");
+            return BadRequest(new { message = "Google token không hợp lệ", error = ex.Message });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Internal Server Error: " + ex.Message);
+            return StatusCode(500, new { message = "Lỗi server khi xử lý đăng nhập Google", error = ex.Message });
         }
     }
 

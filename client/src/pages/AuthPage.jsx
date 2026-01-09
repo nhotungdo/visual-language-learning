@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { GoogleLogin } from '@react-oauth/google'
+import api from '../utils/api'
 import './AuthPage.css'
 
 function AuthPage({ onLogin, onBack }) {
@@ -71,25 +73,61 @@ function AuthPage({ onLogin, onBack }) {
     setError('')
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      let response
       
-      // TODO: Replace with actual API call
-      console.log('Form submitted:', { activeTab, formData })
-      
-      // For now, just call onLogin to simulate successful login
-      onLogin({ email: formData.email, fullName: formData.fullName })
+      if (activeTab === 'register') {
+        response = await api.register(formData.fullName, formData.email, formData.password)
+      } else {
+        response = await api.login(formData.email, formData.password)
+      }
+
+      if (response.ok) {
+        const data = await response.json()
+        onLogin(data)
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.message || errorData.error || `Lỗi đăng nhập (${response.status})`
+        console.error('Login error:', errorData)
+        setError(errorMessage)
+      }
     } catch (err) {
-      setError('Đã có lỗi xảy ra. Vui lòng thử lại.')
+      console.error('Login exception:', err)
+      setError(`Không thể kết nối đến server: ${err.message || 'Vui lòng thử lại'}`)
     } finally {
       setLoading(false)
     }
   }
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await api.googleLogin(credentialResponse.credential)
+
+      if (response.ok) {
+        const data = await response.json()
+        onLogin(data)
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.message || errorData.error || `Lỗi đăng nhập Google (${response.status})`
+        console.error('Google login error:', errorData)
+        setError(errorMessage)
+      }
+    } catch (err) {
+      console.error('Google login exception:', err)
+      setError(`Lỗi kết nối: ${err.message || 'Không thể kết nối đến server'}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    setError('Google login failed. Please try again.')
+  }
+
   const handleOAuthLogin = (provider) => {
-    console.log(`Login with ${provider}`)
-    // TODO: Implement OAuth login
-    setError(`Đăng nhập ${provider} sẽ được triển khai sau`)
+    console.log(`${provider} login will be implemented soon`)
   }
 
   const switchTab = (tab) => {
@@ -157,18 +195,18 @@ function AuthPage({ onLogin, onBack }) {
 
             {/* OAuth Buttons */}
             <div className="oauth-buttons">
-              <button className="btn-oauth google" onClick={() => handleOAuthLogin('Google')}>
-                <span className="oauth-icon">🔵</span>
-                Tiếp tục với Google
-              </button>
-              <button className="btn-oauth facebook" onClick={() => handleOAuthLogin('Facebook')}>
-                <span className="oauth-icon">📘</span>
-                Tiếp tục với Facebook
-              </button>
-              <button className="btn-oauth apple" onClick={() => handleOAuthLogin('Apple')}>
-                <span className="oauth-icon">🍎</span>
-                Tiếp tục với Apple
-              </button>
+              <div className="google-login-wrapper">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap
+                  theme="outline"
+                  size="large"
+                  text="continue_with"
+                  shape="rectangular"
+                  width="100%"
+                />
+              </div>
             </div>
 
             <div className="divider">hoặc</div>

@@ -1,8 +1,40 @@
 import { useState } from 'react'
+import { GoogleLogin } from '@react-oauth/google'
+import api from '../utils/api'
 import './HomePage.css'
 
-function HomePage({ onGetStarted }) {
-  const [selectedExam, setSelectedExam] = useState('ielts')
+function HomePage({ onGetStarted, user, onLogout, onNavigate, onLogin }) {
+  const [selectedLanguage, setSelectedLanguage] = useState('english')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await api.googleLogin(credentialResponse.credential)
+
+      if (response.ok) {
+        const data = await response.json()
+        onLogin(data)
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.message || errorData.error || 'Lỗi đăng nhập Google'
+        console.error('Google login error:', errorData)
+        setError(errorMessage)
+      }
+    } catch (err) {
+      console.error('Google login exception:', err)
+      setError(`Lỗi kết nối: ${err.message || 'Không thể kết nối đến server'}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    setError('Đăng nhập Google thất bại. Vui lòng thử lại.')
+  }
 
   return (
     <div className="homepage">
@@ -10,220 +42,173 @@ function HomePage({ onGetStarted }) {
       <nav className="homepage-nav">
         <div className="nav-content">
           <div className="nav-logo">📚 Visual Language Learning</div>
-          <button className="btn-login" onClick={onGetStarted}>
-            Đăng nhập
-          </button>
+          {user ? (
+            <div className="nav-user-menu">
+              <button className="nav-profile-button" onClick={() => onNavigate('profile')}>
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.fullName} className="nav-user-avatar" />
+                ) : (
+                  <span className="nav-user-avatar-placeholder">
+                    {user.fullName?.charAt(0) || user.email?.charAt(0) || '?'}
+                  </span>
+                )}
+                <span className="nav-user-name">{user.fullName || user.email}</span>
+              </button>
+              <button className="btn-logout" onClick={onLogout}>
+                Đăng xuất
+              </button>
+            </div>
+          ) : null}
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <div className="hero-text">
-            <h1 className="hero-title">
-              Master Languages with
-              <span className="gradient-text"> Visual Learning</span>
+      {/* Hero Section - Platform Introduction */}
+      <section className="hero-new">
+        <div className="hero-container">
+          <div className="hero-content-new">
+            <h1 className="hero-title-new">
+              Học ngôn ngữ qua hình ảnh
+              <span className="gradient-text-new"> hiệu quả hơn</span>
             </h1>
-            <p className="hero-subtitle">
-              Prepare for IELTS & JLPT exams with interactive flashcards, 
-              AI-powered feedback, and personalized learning paths
+            <p className="hero-subtitle-new">
+              Nền tảng học IELTS & JLPT với flashcard hình ảnh, 
+              giúp bạn ghi nhớ từ vựng nhanh chóng và lâu dài
             </p>
-            <div className="hero-buttons">
-              <button className="btn-primary" onClick={onGetStarted}>
-                Get Started Free
-              </button>
-              <button className="btn-secondary">
-                Watch Demo
-              </button>
+
+            {/* Language Selection */}
+            <div className="language-selection">
+              <h3 className="selection-title">Chọn ngôn ngữ bạn muốn học:</h3>
+              <div className="language-cards">
+                <div 
+                  className={`language-card ${selectedLanguage === 'english' ? 'active' : ''}`}
+                  onClick={() => setSelectedLanguage('english')}
+                >
+                  <div className="language-icon">🇬🇧</div>
+                  <h4>English</h4>
+                  <p>IELTS Preparation</p>
+                  <div className="language-badge">Phổ biến nhất</div>
+                </div>
+                <div 
+                  className={`language-card ${selectedLanguage === 'japanese' ? 'active' : ''}`}
+                  onClick={() => setSelectedLanguage('japanese')}
+                >
+                  <div className="language-icon">🇯🇵</div>
+                  <h4>Japanese</h4>
+                  <p>JLPT N5 - N1</p>
+                  <div className="language-badge">Mới</div>
+                </div>
+              </div>
             </div>
-            <div className="hero-stats">
-              <div className="stat">
-                <span className="stat-number">10K+</span>
-                <span className="stat-label">Vocabulary Words</span>
+
+            {/* CTA - Sign in with Google */}
+            <div className="cta-section">
+              {error && <div className="error-message-home">{error}</div>}
+              <div className="google-signin-wrapper">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  theme="filled_blue"
+                  size="large"
+                  text="continue_with"
+                  shape="rectangular"
+                  width="320"
+                  disabled={loading}
+                />
               </div>
-              <div className="stat">
-                <span className="stat-number">500+</span>
-                <span className="stat-label">Practice Tests</span>
-              </div>
-              <div className="stat">
-                <span className="stat-number">95%</span>
-                <span className="stat-label">Success Rate</span>
-              </div>
+              <p className="cta-note-new">
+                Hoặc <button className="link-button" onClick={onGetStarted}>đăng nhập bằng email</button>
+              </p>
+              <p className="cta-subtext">Miễn phí • Không cần thẻ tín dụng</p>
             </div>
           </div>
-          <div className="hero-image">
-            <div className="floating-card card-1">
-              <img src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=300&h=200&fit=crop" alt="Learning" />
-              <div className="card-content">
-                <span className="word">Vocabulary</span>
-                <span className="meaning">Learning made easy</span>
+
+          {/* Visual Learning Demo */}
+          <div className="visual-demo">
+            <div className="demo-card main-card">
+              <img 
+                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop" 
+                alt="Book and reading" 
+                className="demo-image"
+              />
+              <div className="demo-content">
+                <div className="demo-word">
+                  <span className="word-text">Library</span>
+                  <span className="word-phonetic">/ˈlaɪbreri/</span>
+                </div>
+                <div className="demo-meaning">
+                  <span className="meaning-label">Nghĩa:</span>
+                  <span className="meaning-text">Thư viện</span>
+                </div>
+                <div className="demo-example">
+                  "I go to the library every weekend"
+                </div>
               </div>
             </div>
-            <div className="floating-card card-2">
-              <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300&h=200&fit=crop" alt="Study" />
-              <div className="card-content">
-                <span className="word">Practice</span>
-                <span className="meaning">Interactive exercises</span>
+
+            <div className="demo-card small-card card-1">
+              <img 
+                src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=300&h=200&fit=crop" 
+                alt="Books" 
+              />
+              <div className="demo-mini-content">
+                <span className="mini-word">Book</span>
+                <span className="mini-meaning">Sách</span>
               </div>
             </div>
-            <div className="floating-card card-3">
-              <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&h=200&fit=crop" alt="Success" />
-              <div className="card-content">
-                <span className="word">Success</span>
-                <span className="meaning">Achieve your goals</span>
+
+            <div className="demo-card small-card card-2">
+              <img 
+                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&h=200&fit=crop" 
+                alt="Study" 
+              />
+              <div className="demo-mini-content">
+                <span className="mini-word">Study</span>
+                <span className="mini-meaning">Học tập</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Exam Selection */}
-      <section className="exam-section">
-        <h2 className="section-title">Choose Your Path</h2>
-        <div className="exam-cards">
-          <div 
-            className={`exam-card ${selectedExam === 'ielts' ? 'active' : ''}`}
-            onClick={() => setSelectedExam('ielts')}
-          >
-            <div className="exam-icon">🇬🇧</div>
-            <h3>IELTS</h3>
-            <p>International English Language Testing System</p>
-            <ul className="exam-features">
-              <li>✓ Band 4.0 - 9.0 preparation</li>
-              <li>✓ Speaking & Writing AI feedback</li>
-              <li>✓ 5000+ vocabulary words</li>
-              <li>✓ Mock tests & practice</li>
-            </ul>
+      {/* Visual Learning Benefits */}
+      <section className="benefits-section">
+        <div className="benefits-container">
+          <h2 className="section-title-new">Tại sao học bằng hình ảnh?</h2>
+          <div className="benefits-grid">
+            <div className="benefit-card">
+              <div className="benefit-icon">🧠</div>
+              <h3>Ghi nhớ lâu hơn</h3>
+              <p>Não bộ ghi nhớ hình ảnh tốt hơn 60,000 lần so với văn bản thuần túy</p>
+            </div>
+            <div className="benefit-card">
+              <div className="benefit-icon">⚡</div>
+              <h3>Học nhanh hơn</h3>
+              <p>Kết hợp hình ảnh và từ vựng giúp bạn học nhanh gấp 3 lần</p>
+            </div>
+            <div className="benefit-card">
+              <div className="benefit-icon">🎯</div>
+              <h3>Hiệu quả hơn</h3>
+              <p>Phương pháp được chứng minh khoa học giúp tăng khả năng nhớ từ</p>
+            </div>
           </div>
-          <div 
-            className={`exam-card ${selectedExam === 'jlpt' ? 'active' : ''}`}
-            onClick={() => setSelectedExam('jlpt')}
-          >
-            <div className="exam-icon">🇯🇵</div>
-            <h3>JLPT</h3>
-            <p>Japanese Language Proficiency Test</p>
-            <ul className="exam-features">
-              <li>✓ N5 to N1 levels</li>
-              <li>✓ Kanji, vocabulary & grammar</li>
-              <li>✓ Audio pronunciation</li>
-              <li>✓ Reading comprehension</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features">
-        <h2 className="section-title">Why Choose Us?</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">🎯</div>
-            <h3>Visual Learning</h3>
-            <p>Learn faster with image-based flashcards and interactive content</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🤖</div>
-            <h3>AI-Powered Feedback</h3>
-            <p>Get instant feedback on speaking and writing with advanced AI</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📊</div>
-            <h3>Track Progress</h3>
-            <p>Monitor your improvement with detailed analytics and insights</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🎮</div>
-            <h3>Gamification</h3>
-            <p>Earn achievements and stay motivated throughout your journey</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📱</div>
-            <h3>Learn Anywhere</h3>
-            <p>Study on any device with our responsive platform</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">👥</div>
-            <h3>Community</h3>
-            <p>Join thousands of learners achieving their language goals</p>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="how-it-works">
-        <h2 className="section-title">How It Works</h2>
-        <div className="steps">
-          <div className="step">
-            <div className="step-number">1</div>
-            <h3>Choose Your Exam</h3>
-            <p>Select IELTS or JLPT and your target level</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-number">2</div>
-            <h3>Learn & Practice</h3>
-            <p>Study with flashcards, exercises, and mock tests</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-number">3</div>
-            <h3>Get Feedback</h3>
-            <p>Receive AI-powered insights on your performance</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-number">4</div>
-            <h3>Achieve Success</h3>
-            <p>Pass your exam with confidence</p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="cta">
-        <div className="cta-content">
-          <h2>Ready to Start Your Journey?</h2>
-          <p>Join thousands of successful learners today</p>
-          <button className="btn-primary large" onClick={onGetStarted}>
-            Start Learning Now
-          </button>
-          <p className="cta-note">No credit card required • Free forever</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>Visual Language Learning</h4>
-            <p>Master IELTS & JLPT with confidence</p>
+      <footer className="footer-new">
+        <div className="footer-content-new">
+          <div className="footer-brand">
+            <div className="footer-logo">📚 Visual Language Learning</div>
+            <p>Học ngôn ngữ thông minh hơn với hình ảnh</p>
           </div>
-          <div className="footer-section">
-            <h4>Product</h4>
-            <ul>
-              <li><a href="#features">Features</a></li>
-              <li><a href="#pricing">Pricing</a></li>
-              <li><a href="#testimonials">Testimonials</a></li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Resources</h4>
-            <ul>
-              <li><a href="#blog">Blog</a></li>
-              <li><a href="#guides">Study Guides</a></li>
-              <li><a href="#faq">FAQ</a></li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#contact">Contact</a></li>
-              <li><a href="#privacy">Privacy Policy</a></li>
-            </ul>
+          <div className="footer-links">
+            <a href="#about">Về chúng tôi</a>
+            <a href="#contact">Liên hệ</a>
+            <a href="#privacy">Chính sách</a>
           </div>
         </div>
-        <div className="footer-bottom">
+        <div className="footer-bottom-new">
           <p>© 2026 Visual Language Learning. All rights reserved.</p>
         </div>
       </footer>

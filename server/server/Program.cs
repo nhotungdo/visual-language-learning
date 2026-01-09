@@ -60,7 +60,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disable HTTPS redirect for development
 
 app.UseAuthentication();
 app.UseAuthorization();

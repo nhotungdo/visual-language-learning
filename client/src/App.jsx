@@ -1,30 +1,46 @@
 import { useState, useEffect } from 'react'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import './App.css'
 import HomePage from './pages/HomePage'
 import AuthPage from './pages/AuthPage'
+import ProfilePage from './pages/ProfilePage'
 import VocabularyCard from './components/VocabularyCard'
 import VocabularyList from './components/VocabularyList'
 import AddVocabulary from './components/AddVocabulary'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import api from './utils/api'
+import { performStartupChecks } from './utils/errorHandler'
 
-function App() {
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com'
+
+function AppContent() {
+  const { user, login, logout, updateUser } = useAuth()
   const [vocabularies, setVocabularies] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add'
+  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add', 'profile'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [user, setUser] = useState(null)
+  const [configError, setConfigError] = useState(null)
+
+  // Startup checks
+  useEffect(() => {
+    const checkResult = performStartupChecks()
+    if (checkResult.hasErrors) {
+      setConfigError(checkResult)
+    }
+  }, [])
 
   useEffect(() => {
-    if (view !== 'home') {
+    if (user && view !== 'home' && view !== 'auth' && view !== 'profile') {
       fetchVocabularies()
     }
-  }, [view])
+  }, [view, user])
 
   const fetchVocabularies = async () => {
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:5000/api/vocabularies')
+      const response = await api.getVocabularies()
       if (!response.ok) throw new Error('Failed to fetch vocabularies')
       const data = await response.json()
       setVocabularies(data)
@@ -48,9 +64,7 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/vocabularies/${id}`, {
-        method: 'DELETE',
-      })
+      const response = await api.deleteVocabulary(id)
       if (response.ok) {
         await fetchVocabularies()
         if (currentIndex >= vocabularies.length - 1) {
@@ -64,13 +78,7 @@ function App() {
 
   const handleAdd = async (newVocabulary) => {
     try {
-      const response = await fetch('http://localhost:5000/api/vocabularies', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newVocabulary),
-      })
+      const response = await api.addVocabulary(newVocabulary)
       if (response.ok) {
         await fetchVocabularies()
         setView('flashcard')
@@ -80,24 +88,58 @@ function App() {
     }
   }
 
-  const handleLogin = (userData) => {
-    setUser(userData)
-    setView('flashcard')
+  const handleLogin = (authData) => {
+    login(authData)
+    setView('home') // Redirect to home page after login
   }
 
-  const handleLogout = () => {
-    setUser(null)
+  const handleLogout = async () => {
+    await logout()
     setView('home')
+  }
+
+  const handleUpdateUser = (updatedUser) => {
+    updateUser(updatedUser)
   }
 
   // Show homepage
   if (view === 'home') {
-    return <HomePage onGetStarted={() => setView('auth')} />
+    return (
+      <HomePage 
+        onGetStarted={() => setView('auth')} 
+        user={user}
+        onLogout={handleLogout}
+        onNavigate={(newView) => setView(newView)}
+        onLogin={handleLogin}
+      />
+    )
+  }
+
+  // Show configuration error
+  if (configError && configError.hasErrors) {
+    return (
+      <div className="config-error">
+        <h1>⚠️ Configuration Required</h1>
+        <div className="error-details">
+          <pre>{configError.message}</pre>
+        </div>
+        <div className="error-actions">
+          <button onClick={() => window.location.reload()}>
+            Reload After Fixing
+          </button>
+        </div>
+      </div>
+    )
   }
 
   // Show auth page
   if (view === 'auth') {
     return <AuthPage onLogin={handleLogin} onBack={() => setView('home')} />
+  }
+
+  // Show profile page
+  if (view === 'profile') {
+    return <ProfilePage user={user} onUpdateUser={handleUpdateUser} onBack={() => setView('flashcard')} />
   }
 
   if (loading) {
@@ -142,8 +184,17 @@ function App() {
           </button>
           {user && (
             <div className="user-menu">
-              <span>👤 {user.fullName || user.email}</span>
-              <button onClick={handleLogout}>Đăng xuất</button>
+              <button className="profile-button" onClick={() => setView('profile')}>
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.fullName} className="user-avatar" />
+                ) : (
+                  <span className="user-avatar-placeholder">
+                    {user.fullName?.charAt(0) || user.email?.charAt(0) || '?'}
+                  </span>
+                )}
+                <span className="user-name">{user.fullName || user.email}</span>
+              </button>
+              <button className="logout-button" onClick={handleLogout}>Đăng xuất</button>
             </div>
           )}
         </nav>
@@ -182,6 +233,16 @@ function App() {
         )}
       </main>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </GoogleOAuthProvider>
   )
 }
 

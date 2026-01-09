@@ -7,7 +7,7 @@ public class User
     public required string Email { get; set; }
     public string? AvatarUrl { get; set; }
     public string Provider { get; set; } = "google";
-    public required string ProviderUserId { get; set; }
+    public string? ProviderUserId { get; set; }
     public string? PasswordHash { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
