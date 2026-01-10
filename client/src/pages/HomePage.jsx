@@ -1,64 +1,56 @@
-import { useState } from 'react'
-import { GoogleLogin } from '@react-oauth/google'
-import api from '../utils/api'
 import './HomePage.css'
 
-function HomePage({ onGetStarted, user, onLogout, onNavigate, onLogin }) {
-  const [selectedLanguage, setSelectedLanguage] = useState('english')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+function HomePage({ onGetStarted, user, onLogout, onNavigate }) {
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setLoading(true)
-    setError('')
-
-    try {
-      const response = await api.googleLogin(credentialResponse.credential)
-
-      if (response.ok) {
-        const data = await response.json()
-        onLogin(data)
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        const errorMessage = errorData.message || errorData.error || 'Lỗi đăng nhập Google'
-        console.error('Google login error:', errorData)
-        setError(errorMessage)
-      }
-    } catch (err) {
-      console.error('Google login exception:', err)
-      setError(`Lỗi kết nối: ${err.message || 'Không thể kết nối đến server'}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleGoogleError = () => {
-    setError('Đăng nhập Google thất bại. Vui lòng thử lại.')
-  }
 
   return (
     <div className="homepage">
       {/* Navigation Bar */}
       <nav className="homepage-nav">
         <div className="nav-content">
-          <div className="nav-logo">📚 Visual Language Learning</div>
-          {user ? (
-            <div className="nav-user-menu">
-              <button className="nav-profile-button" onClick={() => onNavigate('profile')}>
-                {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.fullName} className="nav-user-avatar" />
-                ) : (
-                  <span className="nav-user-avatar-placeholder">
-                    {user.fullName?.charAt(0) || user.email?.charAt(0) || '?'}
-                  </span>
-                )}
-                <span className="nav-user-name">{user.fullName || user.email}</span>
+          <div className="nav-left">
+            <div className="nav-logo">📚 Visual Language Learning</div>
+
+            {/* Services - Moved to Header */}
+            <div className="nav-services">
+              <button
+                className="nav-service-link"
+                onClick={() => onNavigate('ielts-roadmap')}
+              >
+                IELTS
               </button>
-              <button className="btn-logout" onClick={onLogout}>
-                Đăng xuất
+              <button
+                className="nav-service-link"
+                onClick={() => onNavigate('jlpt-roadmap')}
+              >
+                JLPT
               </button>
             </div>
-          ) : null}
+          </div>
+
+          <div className="nav-auth">
+            {user ? (
+              <div className="nav-user-menu">
+                <button className="nav-profile-button" onClick={() => onNavigate('profile')}>
+                  {user.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user.fullName} className="nav-user-avatar" />
+                  ) : (
+                    <span className="nav-user-avatar-placeholder">
+                      {user.fullName?.charAt(0) || user.email?.charAt(0) || '?'}
+                    </span>
+                  )}
+                  <span className="nav-user-name">{user.fullName || user.email}</span>
+                </button>
+                <button className="btn-logout" onClick={onLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            ) : (
+              <button className="btn-login-header" onClick={onGetStarted}>
+                Đăng nhập
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -71,64 +63,23 @@ function HomePage({ onGetStarted, user, onLogout, onNavigate, onLogin }) {
               <span className="gradient-text-new"> hiệu quả hơn</span>
             </h1>
             <p className="hero-subtitle-new">
-              Nền tảng học IELTS & JLPT với flashcard hình ảnh, 
-              giúp bạn ghi nhớ từ vựng nhanh chóng và lâu dài
+              Nền tảng học IELTS & JLPT với flashcard hình ảnh,
+              giúp bạn ghi nhớ từ vựng nhanh chóng và lâu dài.
             </p>
 
-            {/* Language Selection */}
-            <div className="language-selection">
-              <h3 className="selection-title">Chọn ngôn ngữ bạn muốn học:</h3>
-              <div className="language-cards">
-                <div 
-                  className={`language-card ${selectedLanguage === 'english' ? 'active' : ''}`}
-                  onClick={() => setSelectedLanguage('english')}
-                >
-                  <div className="language-icon">🇬🇧</div>
-                  <h4>English</h4>
-                  <p>IELTS Preparation</p>
-                  <div className="language-badge">Phổ biến nhất</div>
-                </div>
-                <div 
-                  className={`language-card ${selectedLanguage === 'japanese' ? 'active' : ''}`}
-                  onClick={() => setSelectedLanguage('japanese')}
-                >
-                  <div className="language-icon">🇯🇵</div>
-                  <h4>Japanese</h4>
-                  <p>JLPT N5 - N1</p>
-                  <div className="language-badge">Mới</div>
-                </div>
-              </div>
-            </div>
-
-            {/* CTA - Sign in with Google */}
-            <div className="cta-section">
-              {error && <div className="error-message-home">{error}</div>}
-              <div className="google-signin-wrapper">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  useOneTap={false}
-                  theme="filled_blue"
-                  size="large"
-                  text="continue_with"
-                  shape="rectangular"
-                  width="320"
-                  disabled={loading}
-                />
-              </div>
-              <p className="cta-note-new">
-                Hoặc <button className="link-button" onClick={onGetStarted}>đăng nhập bằng email</button>
-              </p>
-              <p className="cta-subtext">Miễn phí • Không cần thẻ tín dụng</p>
+            <div className="hero-cta-group">
+              <button className="btn-start-now" onClick={onGetStarted}>
+                Bắt đầu ngay
+              </button>
             </div>
           </div>
 
           {/* Visual Learning Demo */}
           <div className="visual-demo">
             <div className="demo-card main-card">
-              <img 
-                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop" 
-                alt="Book and reading" 
+              <img
+                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop"
+                alt="Book and reading"
                 className="demo-image"
               />
               <div className="demo-content">
@@ -147,9 +98,9 @@ function HomePage({ onGetStarted, user, onLogout, onNavigate, onLogin }) {
             </div>
 
             <div className="demo-card small-card card-1">
-              <img 
-                src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=300&h=200&fit=crop" 
-                alt="Books" 
+              <img
+                src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=300&h=200&fit=crop"
+                alt="Books"
               />
               <div className="demo-mini-content">
                 <span className="mini-word">Book</span>
@@ -158,9 +109,9 @@ function HomePage({ onGetStarted, user, onLogout, onNavigate, onLogin }) {
             </div>
 
             <div className="demo-card small-card card-2">
-              <img 
-                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&h=200&fit=crop" 
-                alt="Study" 
+              <img
+                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&h=200&fit=crop"
+                alt="Study"
               />
               <div className="demo-mini-content">
                 <span className="mini-word">Study</span>
@@ -212,7 +163,7 @@ function HomePage({ onGetStarted, user, onLogout, onNavigate, onLogin }) {
           <p>© 2026 Visual Language Learning. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+    </div >
   )
 }
 

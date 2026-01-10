@@ -59,11 +59,23 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Enable static files
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseCors("AllowReactApp");
 // app.UseHttpsRedirection(); // Disable HTTPS redirect for development
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// API endpoint for root
+app.MapGet("/api", () => Results.Ok(new { 
+    message = "Visual Language Learning API is running", 
+    version = "1.0",
+    swagger = "/swagger",
+    status = "OK"
+})).WithName("GetApiInfo");
 
 app.MapControllers();
 

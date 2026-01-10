@@ -4,6 +4,8 @@ import './App.css'
 import HomePage from './pages/HomePage'
 import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
+import IELTSRoadmapPage from './pages/IELTSRoadmapPage'
+import JLPTRoadmapPage from './pages/JLPTRoadmapPage'
 import VocabularyCard from './components/VocabularyCard'
 import VocabularyList from './components/VocabularyList'
 import AddVocabulary from './components/AddVocabulary'
@@ -18,7 +20,7 @@ function AppContent() {
   const [vocabularies, setVocabularies] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add', 'profile'
+  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add', 'profile', 'ielts-roadmap', 'jlpt-roadmap'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [configError, setConfigError] = useState(null)
@@ -140,6 +142,16 @@ function AppContent() {
   // Show profile page
   if (view === 'profile') {
     return <ProfilePage user={user} onUpdateUser={handleUpdateUser} onBack={() => setView('flashcard')} />
+  }
+
+  // Show IELTS roadmap page
+  if (view === 'ielts-roadmap') {
+    return <IELTSRoadmapPage onBack={() => setView('home')} user={user} onNavigate={(newView) => setView(newView)} />
+  }
+
+  // Show JLPT roadmap page
+  if (view === 'jlpt-roadmap') {
+    return <JLPTRoadmapPage onBack={() => setView('home')} user={user} onNavigate={(newView) => setView(newView)} />
   }
 
   if (loading) {

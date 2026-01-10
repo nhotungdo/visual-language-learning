@@ -1,0 +1,517 @@
+/* Roadmap Page Styles */
+.roadmap-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.roadmap-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-4px);
+}
+
+.roadmap-header h1 {
+  color: white;
+  font-size: 2.5rem;
+  margin: 0.5rem 0;
+}
+
+.roadmap-header .subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.roadmap-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+/* Levels Section */
+.levels-section {
+  margin-bottom: 4rem;
+}
+
+.levels-section h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.jlpt-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.level-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.level-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.level-card.selected {
+  border: 3px solid #ffd89b;
+  box-shadow: 0 8px 16px rgba(255, 216, 155, 0.4);
+}
+
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.level-header h3 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.score-badge {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.level-stats {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  background: #f0f4ff;
+  color: #667eea;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.duration {
+  color: #718096;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+}
+
+.description {
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+
+.level-details {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.level-details h4 {
+  color: #2d3748;
+  font-size: 1rem;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.level-details ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.level-details li {
+  color: #4a5568;
+  padding: 0.25rem 0;
+  font-size: 0.95rem;
+}
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.topic-tag {
+  background: #f0f4ff;
+  color: #667eea;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+/* Learning Path Section */
+.learning-path-section {
+  margin-bottom: 4rem;
+}
+
+.learning-path-section h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.path-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.path-timeline::before {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.path-phase {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.phase-marker {
+  width: 3rem;
+  height: 3rem;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #667eea;
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.phase-content {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  flex: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.phase-label {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.phase-content h3 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.phase-duration {
+  color: #718096;
+  font-size: 0.95rem;
+  margin: 0.5rem 0 1rem 0;
+}
+
+.activities {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activities li {
+  color: #4a5568;
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.activities li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Tips Section */
+.tips-section {
+  margin-bottom: 4rem;
+}
+
+.tips-section h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.tip-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tip-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.tip-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.tip-card h3 {
+  color: #2d3748;
+  font-size: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.tip-card p {
+  color: #718096;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Exam Info Section */
+.exam-info-section {
+  margin-bottom: 4rem;
+}
+
+.exam-info-section h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.exam-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-card h3 {
+  color: #2d3748;
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+}
+
+.info-card p {
+  color: #718096;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cta-content h2 {
+  color: white;
+  font-size: 2rem;
+  margin: 0 0 1rem 0;
+}
+
+.cta-content p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0 0 2rem 0;
+}
+
+.cta-button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* JLPT Theme */
+.jlpt-theme {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.jlpt-theme .score-badge,
+.jlpt-theme .phase-label,
+.jlpt-theme .activities li::before {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.jlpt-theme .stat-badge,
+.jlpt-theme .topic-tag {
+  background: #ffe5e5;
+  color: #e74c3c;
+}
+
+.jlpt-theme .phase-marker {
+  color: #e74c3c;
+}
+
+.jlpt-theme .cta-button {
+  color: #e74c3c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .roadmap-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .roadmap-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .roadmap-header .subtitle {
+    font-size: 1rem;
+  }
+
+  .roadmap-content {
+    padding: 2rem 1rem;
+  }
+
+  .levels-section h2,
+  .learning-path-section h2,
+  .tips-section h2,
+  .exam-info-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .levels-grid,
+  .jlpt-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .path-timeline {
+    padding-left: 1rem;
+  }
+
+  .path-timeline::before {
+    left: 1rem;
+  }
+
+  .path-phase {
+    gap: 1rem;
+  }
+
+  .phase-marker {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+
+  .tips-grid,
+  .exam-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-section {
+    padding: 2rem 1rem;
+  }
+
+  .cta-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .cta-content p {
+    font-size: 1rem;
+  }
+
+  .cta-button {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .level-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .level-stats {
+    width: 100%;
+  }
+}
