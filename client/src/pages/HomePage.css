@@ -45,6 +45,12 @@
   gap: 24px;
 }
 
+.nav-service-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .nav-service-link {
   background: none;
   border: none;
@@ -60,6 +66,26 @@
 .nav-service-link:hover {
   background: rgba(102, 126, 234, 0.1);
   color: #667eea;
+}
+
+.nav-exercise-link {
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  color: #667eea;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-exercise-link:hover {
+  background: #667eea;
+  border-color: #667eea;
+  transform: scale(1.1);
 }
 
 /* Auth Buttons */

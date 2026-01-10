@@ -1,9 +1,21 @@
 import { useState } from 'react'
 import './VocabularyCard.css'
+import { API_URL } from '../utils/api'
 
 function VocabularyCard({ vocabulary, showAnswer, onToggleAnswer, onNext, onPrevious, currentIndex, total }) {
   const [imageError, setImageError] = useState(false)
+  // Resolve image URL from multiple possible server shapes:
+  // - `imageUrl` on the vocabulary object
+  // - `vocabularyImages` (or `VocabularyImages`) array with `imageUrl` on items
+  const resolvedImageUrl = vocabulary?.imageUrl
+    || vocabulary?.vocabularyImages?.[0]?.imageUrl
+    || vocabulary?.VocabularyImages?.[0]?.imageUrl
 
+  // If server returns a relative path (e.g. "/uploads/.."), prefix with API_URL
+  let imgSrc = resolvedImageUrl
+  if (imgSrc && !imgSrc.startsWith('http')) {
+    imgSrc = `${API_URL}${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`
+  }
   return (
     <div className="vocabulary-card-container">
       <div className="progress-indicator">
@@ -15,7 +27,7 @@ function VocabularyCard({ vocabulary, showAnswer, onToggleAnswer, onNext, onPrev
           <div className="card-image">
             {!imageError ? (
               <img 
-                src={vocabulary.imageUrl} 
+                src={imgSrc} 
                 alt={vocabulary.word}
                 onError={() => setImageError(true)}
               />
@@ -36,7 +48,7 @@ function VocabularyCard({ vocabulary, showAnswer, onToggleAnswer, onNext, onPrev
           <div className="card-image">
             {!imageError ? (
               <img 
-                src={vocabulary.imageUrl} 
+                src={imgSrc} 
                 alt={vocabulary.word}
                 onError={() => setImageError(true)}
               />

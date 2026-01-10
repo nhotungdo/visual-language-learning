@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { API_URL } from '../utils/api'
 import './VocabularyList.css'
 
 function VocabularyList({ vocabularies, onDelete, onRefresh }) {
@@ -28,31 +29,37 @@ function VocabularyList({ vocabularies, onDelete, onRefresh }) {
       </div>
 
       <div className="vocabulary-grid">
-        {filteredVocabularies.map(vocab => (
-          <div key={vocab.id} className="vocabulary-item">
-            <div className="vocab-image">
-              <img src={vocab.imageUrl} alt={vocab.word} />
+        {filteredVocabularies.map(vocab => {
+          let imgSrc = vocab?.imageUrl || vocab?.vocabularyImages?.[0]?.imageUrl || vocab?.VocabularyImages?.[0]?.imageUrl
+          if (imgSrc && !imgSrc.startsWith('http')) {
+            imgSrc = `${API_URL}${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`
+          }
+          return (
+            <div key={vocab.id} className="vocabulary-item">
+              <div className="vocab-image">
+                <img src={imgSrc} alt={vocab.word} />
+              </div>
+              <div className="vocab-info">
+                <h3>{vocab.word}</h3>
+                <p className="vocab-translation">{vocab.translation}</p>
+                {vocab.example && (
+                  <p className="vocab-example">{vocab.example}</p>
+                )}
+                <span className="vocab-category">{vocab.category}</span>
+              </div>
+              <button 
+                className="delete-btn"
+                onClick={() => {
+                  if (window.confirm(`Xóa từ "${vocab.word}"?`)) {
+                    onDelete(vocab.id)
+                  }
+                }}
+              >
+                🗑️
+              </button>
             </div>
-            <div className="vocab-info">
-              <h3>{vocab.word}</h3>
-              <p className="vocab-translation">{vocab.translation}</p>
-              {vocab.example && (
-                <p className="vocab-example">{vocab.example}</p>
-              )}
-              <span className="vocab-category">{vocab.category}</span>
-            </div>
-            <button 
-              className="delete-btn"
-              onClick={() => {
-                if (window.confirm(`Xóa từ "${vocab.word}"?`)) {
-                  onDelete(vocab.id)
-                }
-              }}
-            >
-              🗑️
-            </button>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

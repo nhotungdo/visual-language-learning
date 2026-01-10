@@ -13,18 +13,36 @@ function HomePage({ onGetStarted, user, onLogout, onNavigate }) {
 
             {/* Services - Moved to Header */}
             <div className="nav-services">
-              <button
-                className="nav-service-link"
-                onClick={() => onNavigate('ielts-roadmap')}
-              >
-                IELTS
-              </button>
-              <button
-                className="nav-service-link"
-                onClick={() => onNavigate('jlpt-roadmap')}
-              >
-                JLPT
-              </button>
+              <div className="nav-service-group">
+                <button
+                  className="nav-service-link"
+                  onClick={() => onNavigate('ielts-roadmap')}
+                >
+                  IELTS
+                </button>
+                <button
+                  className="nav-exercise-link"
+                  onClick={() => onNavigate('ielts-exercise')}
+                  title="Làm bài tập IELTS"
+                >
+                  📝
+                </button>
+              </div>
+              <div className="nav-service-group">
+                <button
+                  className="nav-service-link"
+                  onClick={() => onNavigate('jlpt-roadmap')}
+                >
+                  JLPT
+                </button>
+                <button
+                  className="nav-exercise-link"
+                  onClick={() => onNavigate('jlpt-exercise')}
+                  title="Làm bài tập JLPT"
+                >
+                  📝
+                </button>
+              </div>
             </div>
           </div>
 

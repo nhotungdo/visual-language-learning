@@ -6,6 +6,10 @@ import AuthPage from './pages/AuthPage'
 import ProfilePage from './pages/ProfilePage'
 import IELTSRoadmapPage from './pages/IELTSRoadmapPage'
 import JLPTRoadmapPage from './pages/JLPTRoadmapPage'
+import IELTSExercisePage from './pages/IELTSExercisePage'
+import JLPTExercisePage from './pages/JLPTExercisePage'
+import KanaLearningPage from './pages/KanaLearningPage'
+import KanjiLearningPage from './pages/KanjiLearningPage'
 import VocabularyCard from './components/VocabularyCard'
 import VocabularyList from './components/VocabularyList'
 import AddVocabulary from './components/AddVocabulary'
@@ -20,10 +24,12 @@ function AppContent() {
   const [vocabularies, setVocabularies] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add', 'profile', 'ielts-roadmap', 'jlpt-roadmap'
+  const [view, setView] = useState('home') // 'home', 'auth', 'flashcard', 'list', 'add', 'profile', 'ielts-roadmap', 'jlpt-roadmap', 'ielts-exercise', 'jlpt-exercise', 'hiragana', 'katakana', 'kanji'
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [configError, setConfigError] = useState(null)
+  const [exerciseLevel, setExerciseLevel] = useState(null)
+  const [kanaType, setKanaType] = useState('hiragana')
 
   // Startup checks
   useEffect(() => {
@@ -153,12 +159,44 @@ function AppContent() {
 
   // Show IELTS roadmap page
   if (view === 'ielts-roadmap') {
-    return <IELTSRoadmapPage onBack={() => setView('home')} user={user} onNavigate={(newView) => setView(newView)} />
+    return <IELTSRoadmapPage onBack={() => setView('home')} user={user} onNavigate={(newView, params) => {
+      setView(newView)
+      if (params?.level) setExerciseLevel(params.level)
+    }} />
   }
 
   // Show JLPT roadmap page
   if (view === 'jlpt-roadmap') {
-    return <JLPTRoadmapPage onBack={() => setView('home')} user={user} onNavigate={(newView) => setView(newView)} />
+    return <JLPTRoadmapPage onBack={() => setView('home')} user={user} onNavigate={(newView, params) => {
+      setView(newView)
+      if (params?.level) setExerciseLevel(params.level)
+      if (params?.type) setKanaType(params.type)
+    }} />
+  }
+
+  // Show IELTS exercise page
+  if (view === 'ielts-exercise') {
+    return <IELTSExercisePage onBack={() => setView('ielts-roadmap')} level={exerciseLevel} user={user} />
+  }
+
+  // Show JLPT exercise page
+  if (view === 'jlpt-exercise') {
+    return <JLPTExercisePage onBack={() => setView('jlpt-roadmap')} level={exerciseLevel} user={user} />
+  }
+
+  // Show Hiragana learning page
+  if (view === 'hiragana') {
+    return <KanaLearningPage onBack={() => setView('jlpt-roadmap')} type="hiragana" />
+  }
+
+  // Show Katakana learning page
+  if (view === 'katakana') {
+    return <KanaLearningPage onBack={() => setView('jlpt-roadmap')} type="katakana" />
+  }
+
+  // Show Kanji learning page
+  if (view === 'kanji') {
+    return <KanjiLearningPage onBack={() => setView('jlpt-roadmap')} level={exerciseLevel} />
   }
 
   if (loading) {

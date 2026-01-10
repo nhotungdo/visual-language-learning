@@ -180,7 +180,11 @@ function JLPTRoadmapPage({ onBack, user, onNavigate }) {
               <div
                 key={level.id}
                 className={`level-card ${selectedLevel === level.id ? 'selected' : ''}`}
-                onClick={() => setSelectedLevel(level.id)}
+                onClick={() => {
+                  setSelectedLevel(level.id)
+                  // Navigate to level-specific learning page
+                  onNavigate('jlpt-exercise', { level: level.id })
+                }}
               >
                 <div className="level-header">
                   <h3>{level.name}</h3>
@@ -235,6 +239,33 @@ function JLPTRoadmapPage({ onBack, user, onNavigate }) {
         </section>
 
         {/* Study Tips Section */}
+        <section className="tips-section">
+          <h2>学習リソース (Learning Resources)</h2>
+          <div className="tips-grid">
+            <div className="tip-card" onClick={() => onNavigate('hiragana')} style={{ cursor: 'pointer' }}>
+              <span className="tip-icon">あ</span>
+              <h3>ひらがな</h3>
+              <p>Hiragana - 46 ký tự cơ bản của tiếng Nhật</p>
+            </div>
+            <div className="tip-card" onClick={() => onNavigate('katakana')} style={{ cursor: 'pointer' }}>
+              <span className="tip-icon">ア</span>
+              <h3>カタカナ</h3>
+              <p>Katakana - Dùng cho từ ngoại lai và tên riêng</p>
+            </div>
+            <div className="tip-card" onClick={() => onNavigate('kanji')} style={{ cursor: 'pointer' }}>
+              <span className="tip-icon">漢</span>
+              <h3>漢字</h3>
+              <p>Kanji - Chữ Hán theo từng cấp độ JLPT</p>
+            </div>
+            <div className="tip-card">
+              <span className="tip-icon">📚</span>
+              <h3>Tài liệu học tập</h3>
+              <p>Sách giáo trình và tài liệu tham khảo</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Original Tips Section */}
         <section className="tips-section">
           <h2>Mẹo học tiếng Nhật hiệu quả</h2>
           <div className="tips-grid">

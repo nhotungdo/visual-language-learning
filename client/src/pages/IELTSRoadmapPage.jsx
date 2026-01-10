@@ -144,7 +144,11 @@ function IELTSRoadmapPage({ onBack, user, onNavigate }) {
               <div
                 key={level.id}
                 className={`level-card ${selectedLevel === level.id ? 'selected' : ''}`}
-                onClick={() => setSelectedLevel(level.id)}
+                onClick={() => {
+                  setSelectedLevel(level.id)
+                  // Navigate to level-specific learning page
+                  onNavigate('ielts-exercise', { level: level.id })
+                }}
               >
                 <div className="level-header">
                   <h3>{level.name}</h3>
