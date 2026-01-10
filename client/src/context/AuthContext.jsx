@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import api from '../utils/api'
 
 const AuthContext = createContext(null)
 
@@ -39,25 +38,14 @@ export const AuthProvider = ({ children }) => {
 
   const refreshAccessToken = async (accessToken, refreshToken) => {
     try {
-      const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          accessToken,
-          refreshToken
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
+      const res = await api.refreshToken(accessToken, refreshToken)
+      if (res?.ok) {
+        const data = res.data
         localStorage.setItem('accessToken', data.token)
         localStorage.setItem('refreshToken', data.refreshToken)
         localStorage.setItem('user', JSON.stringify(data.user))
         setUser(data.user)
       } else {
-        // Token refresh failed, logout
         logout()
       }
     } catch (error) {
@@ -78,12 +66,7 @@ export const AuthProvider = ({ children }) => {
     
     if (token) {
       try {
-        await fetch(`${API_URL}/api/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        await api.logout(token)
       } catch (error) {
         console.error('Logout error:', error)
       }
@@ -101,7 +84,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
+    <AuthContext.Provider value={{ user, token: localStorage.getItem('accessToken'), login, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   )

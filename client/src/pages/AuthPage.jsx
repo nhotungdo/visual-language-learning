@@ -73,26 +73,23 @@ function AuthPage({ onLogin, onBack }) {
     setError('')
 
     try {
-      let response
-      
+      let res
+
       if (activeTab === 'register') {
-        response = await api.register(formData.fullName, formData.email, formData.password)
+        res = await api.register(formData.fullName, formData.email, formData.password)
       } else {
-        response = await api.login(formData.email, formData.password)
+        res = await api.login(formData.email, formData.password)
       }
 
-      if (response.ok) {
-        const data = await response.json()
-        onLogin(data)
+      // our api wrapper returns { ok, status, data }
+      if (res?.ok) {
+        onLogin(res.data)
       } else {
-        const errorData = await response.json().catch(() => ({}))
-        const errorMessage = errorData.message || errorData.error || `Lỗi đăng nhập (${response.status})`
-        console.error('Login error:', errorData)
-        setError(errorMessage)
+        setError('Đăng nhập thất bại. Vui lòng thử lại.')
       }
     } catch (err) {
       console.error('Login exception:', err)
-      setError(`Không thể kết nối đến server: ${err.message || 'Vui lòng thử lại'}`)
+      setError(err.message || 'Không thể kết nối đến server. Vui lòng thử lại.')
     } finally {
       setLoading(false)
     }
@@ -103,20 +100,15 @@ function AuthPage({ onLogin, onBack }) {
     setError('')
 
     try {
-      const response = await api.googleLogin(credentialResponse.credential)
-
-      if (response.ok) {
-        const data = await response.json()
-        onLogin(data)
+      const res = await api.googleLogin(credentialResponse.credential)
+      if (res?.ok) {
+        onLogin(res.data)
       } else {
-        const errorData = await response.json().catch(() => ({}))
-        const errorMessage = errorData.message || errorData.error || `Lỗi đăng nhập Google (${response.status})`
-        console.error('Google login error:', errorData)
-        setError(errorMessage)
+        setError('Google login failed. Please try again.')
       }
     } catch (err) {
       console.error('Google login exception:', err)
-      setError(`Lỗi kết nối: ${err.message || 'Không thể kết nối đến server'}`)
+      setError(err.message || 'Lỗi kết nối: Không thể kết nối đến server')
     } finally {
       setLoading(false)
     }

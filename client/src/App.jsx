@@ -42,13 +42,21 @@ function AppContent() {
   const fetchVocabularies = async () => {
     try {
       setLoading(true)
-      const response = await api.getVocabularies()
-      if (!response.ok) throw new Error('Failed to fetch vocabularies')
-      const data = await response.json()
+      const res = await api.getVocabularies()
+      if (!res?.ok) {
+        throw new Error(`Server returned error: ${res?.status || 'unknown'}`)
+      }
+
+      const data = res.data
       setVocabularies(data)
       setError(null)
     } catch (err) {
-      setError(err.message)
+      console.error('Fetch error details:', err)
+      if (err.message === 'Failed to fetch') {
+        setError('Network Error: Cannot connect to server. Ensure backend is running at http://localhost:5000')
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -66,8 +74,8 @@ function AppContent() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await api.deleteVocabulary(id)
-      if (response.ok) {
+      const res = await api.deleteVocabulary(id)
+      if (res?.ok) {
         await fetchVocabularies()
         if (currentIndex >= vocabularies.length - 1) {
           setCurrentIndex(0)
@@ -80,8 +88,8 @@ function AppContent() {
 
   const handleAdd = async (newVocabulary) => {
     try {
-      const response = await api.addVocabulary(newVocabulary)
-      if (response.ok) {
+      const res = await api.addVocabulary(newVocabulary)
+      if (res?.ok) {
         await fetchVocabularies()
         setView('flashcard')
       }
@@ -107,12 +115,11 @@ function AppContent() {
   // Show homepage
   if (view === 'home') {
     return (
-      <HomePage 
-        onGetStarted={() => setView('auth')} 
+      <HomePage
+        onGetStarted={() => setView('auth')}
         user={user}
         onLogout={handleLogout}
         onNavigate={(newView) => setView(newView)}
-        onLogin={handleLogin}
       />
     )
   }
@@ -176,20 +183,20 @@ function AppContent() {
           📚 Visual Language Learning
         </h1>
         <nav className="nav-buttons">
-          <button 
-            className={view === 'flashcard' ? 'active' : ''} 
+          <button
+            className={view === 'flashcard' ? 'active' : ''}
             onClick={() => setView('flashcard')}
           >
             Flashcards
           </button>
-          <button 
-            className={view === 'list' ? 'active' : ''} 
+          <button
+            className={view === 'list' ? 'active' : ''}
             onClick={() => setView('list')}
           >
             Danh sách
           </button>
-          <button 
-            className={view === 'add' ? 'active' : ''} 
+          <button
+            className={view === 'add' ? 'active' : ''}
             onClick={() => setView('add')}
           >
             Thêm từ

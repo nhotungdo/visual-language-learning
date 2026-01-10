@@ -80,15 +80,17 @@ export const checkConfiguration = () => {
   }
 
   // Check API URL
-  const apiUrl = import.meta.env.VITE_API_URL;
-  if (!apiUrl) {
-    errors.push({
-      type: 'CONFIG_ERROR',
-      message: 'API URL not configured',
-      solution: 'Update VITE_API_URL in .env file',
-      file: 'client/.env'
-    });
-  }
+  // API URL: not required because the client has a sensible runtime fallback to http://localhost:5000.
+  // If you want to force configuration, uncomment the check below.
+  // const apiUrl = import.meta.env.VITE_API_URL;
+  // if (!apiUrl) {
+  //   errors.push({
+  //     type: 'CONFIG_ERROR',
+  //     message: 'API URL not configured',
+  //     solution: 'Update VITE_API_URL in .env file',
+  //     file: 'client/.env'
+  //   });
+  // }
 
   return errors;
 };

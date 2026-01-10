@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import './ProfilePage.css'
+import { useAuth } from '../context/AuthContext'
 
 function ProfilePage({ user, onUpdateUser, onBack }) {
+  const { token } = useAuth()
   const [formData, setFormData] = useState({
     fullName: user?.fullName || '',
     targetLanguageId: user?.targetLanguageId || null,
@@ -24,10 +26,9 @@ function ProfilePage({ user, onUpdateUser, onBack }) {
         api.getLanguages(),
         api.getExams()
       ])
-      
-      if (langsRes.ok && examsRes.ok) {
-        setLanguages(await langsRes.json())
-        setExams(await examsRes.json())
+      if (langsRes?.ok && examsRes?.ok) {
+        setLanguages(langsRes.data)
+        setExams(examsRes.data)
       }
     } catch (err) {
       console.error('Error fetching reference data:', err)
@@ -57,11 +58,9 @@ function ProfilePage({ user, onUpdateUser, onBack }) {
     setSuccess('')
 
     try {
-      const token = localStorage.getItem('accessToken')
-      const response = await api.updateProfile(token, formData)
-
-      if (response.ok) {
-        const updatedUser = await response.json()
+      const res = await api.updateProfile(token, formData)
+      if (res?.ok) {
+        const updatedUser = res.data
         onUpdateUser(updatedUser)
         setSuccess('Profile updated successfully!')
       } else {

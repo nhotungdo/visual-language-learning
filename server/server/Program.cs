@@ -7,6 +7,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Ensure Kestrel explicitly binds to the development URL to avoid ambiguous host binding
+builder.WebHost.UseUrls("http://localhost:5000");
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -53,8 +56,27 @@ builder.Services.AddAuthentication(options =>
 // Configure the HTTP request pipeline
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+// Log lifecycle events for easier debugging of unexpected shutdowns
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    logger.LogInformation("ApplicationStarted: Listening on http://localhost:5000");
+});
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    logger.LogWarning("ApplicationStopping: Shutdown requested");
+});
+
+app.Lifetime.ApplicationStopped.Register(() =>
+{
+    logger.LogWarning("ApplicationStopped: Host has stopped");
+});
+
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -89,7 +111,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        // Use the previously resolved logger to record migration errors
         logger.LogError(ex, "An error occurred while migrating the database.");
     }
 }
