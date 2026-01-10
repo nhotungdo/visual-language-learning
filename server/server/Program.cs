@@ -92,8 +92,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // API endpoint for root
-app.MapGet("/api", () => Results.Ok(new { 
-    message = "Visual Language Learning API is running", 
+app.MapGet("/api", () => Results.Ok(new
+{
+    message = "Visual Language Learning API is running",
     version = "1.0",
     swagger = "/swagger",
     status = "OK"
