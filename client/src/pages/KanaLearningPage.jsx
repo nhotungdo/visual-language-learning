@@ -11,18 +11,18 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
   // Hiragana chart
   const hiraganaChart = {
     'あ行': [
-      { kana: 'あ', romaji: 'a', audio: '/audio/a.mp3' },
-      { kana: 'い', romaji: 'i', audio: '/audio/i.mp3' },
-      { kana: 'う', romaji: 'u', audio: '/audio/u.mp3' },
-      { kana: 'え', romaji: 'e', audio: '/audio/e.mp3' },
-      { kana: 'お', romaji: 'o', audio: '/audio/o.mp3' }
+      { kana: 'あ', romaji: 'a', audio: '/audio/a.mp3', mnemonic: 'Looks like an "A"ngler fish', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200' },
+      { kana: 'い', romaji: 'i', audio: '/audio/i.mp3', mnemonic: 'Two "i"s standing together', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200' },
+      { kana: 'う', romaji: 'u', audio: '/audio/u.mp3', mnemonic: 'Looks like "u" with a hat', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200' },
+      { kana: 'え', romaji: 'e', audio: '/audio/e.mp3', mnemonic: 'An "e"xotic bird', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200' },
+      { kana: 'お', romaji: 'o', audio: '/audio/o.mp3', mnemonic: 'An "o"val with a tail', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200' }
     ],
     'か行': [
-      { kana: 'か', romaji: 'ka', audio: '/audio/ka.mp3' },
-      { kana: 'き', romaji: 'ki', audio: '/audio/ki.mp3' },
-      { kana: 'く', romaji: 'ku', audio: '/audio/ku.mp3' },
-      { kana: 'け', romaji: 'ke', audio: '/audio/ke.mp3' },
-      { kana: 'こ', romaji: 'ko', audio: '/audio/ko.mp3' }
+      { kana: 'か', romaji: 'ka', audio: '/audio/ka.mp3', mnemonic: 'A "ka"rate chop', image: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=200' },
+      { kana: 'き', romaji: 'ki', audio: '/audio/ki.mp3', mnemonic: 'A "key" shape', image: 'https://images.unsplash.com/photo-1582139329536-e7284fece509?w=200' },
+      { kana: 'く', romaji: 'ku', audio: '/audio/ku.mp3', mnemonic: 'A "coo"king spoon', image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=200' },
+      { kana: 'け', romaji: 'ke', audio: '/audio/ke.mp3', mnemonic: 'A "ke"ttle handle', image: 'https://images.unsplash.com/photo-1563822249366-3effc1c0c2d7?w=200' },
+      { kana: 'こ', romaji: 'ko', audio: '/audio/ko.mp3', mnemonic: 'Two "co"ins stacked', image: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=200' }
     ],
     'さ行': [
       { kana: 'さ', romaji: 'sa', audio: '/audio/sa.mp3' },
@@ -254,6 +254,32 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
               <div className="detail-content">
                 <div className="detail-kana">{selectedChar.kana}</div>
                 <div className="detail-romaji">{selectedChar.romaji}</div>
+                
+                {selectedChar.mnemonic && (
+                  <div className="mnemonic-section">
+                    <div className="mnemonic-icon">💡</div>
+                    <div className="mnemonic-text">{selectedChar.mnemonic}</div>
+                  </div>
+                )}
+
+                {selectedChar.image && (
+                  <div className="character-image">
+                    <img 
+                      src={selectedChar.image} 
+                      alt={`Mnemonic for ${selectedChar.kana}`}
+                      style={{
+                        width: '100%',
+                        maxWidth: '200px',
+                        height: '150px',
+                        objectFit: 'cover',
+                        borderRadius: '12px',
+                        margin: '1rem auto',
+                        display: 'block',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                      }}
+                    />
+                  </div>
+                )}
                 
                 <button className="audio-play-button">
                   🔊 発音を聞く

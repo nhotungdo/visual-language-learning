@@ -28,6 +28,8 @@ function JLPTExercisePage({ onBack, level, user }) {
           type: 'Hiragana',
           question: '次のひらがなの読み方として正しいものを選びなさい。',
           kanji: 'あ',
+          image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=400',
+          imageAlt: 'Japanese hiragana character',
           options: [
             'a',
             'i',
@@ -41,6 +43,8 @@ function JLPTExercisePage({ onBack, level, user }) {
           id: 2,
           type: 'Vocabulary',
           question: '「こんにちは」の意味として正しいものを選びなさい。',
+          image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=400',
+          imageAlt: 'Japanese greeting',
           options: [
             'Good morning',
             'Hello / Good afternoon',
@@ -68,6 +72,9 @@ function JLPTExercisePage({ onBack, level, user }) {
           type: 'Kanji',
           question: '次の漢字の読み方として最も適当なものを選びなさい。',
           kanji: '一',
+          image: 'https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=400',
+          imageAlt: 'Number one in Japanese',
+          mnemonic: '一本の横線 = 数字の1',
           options: [
             'いち',
             'に',
@@ -81,6 +88,8 @@ function JLPTExercisePage({ onBack, level, user }) {
           id: 5,
           type: 'Vocabulary',
           question: '「ありがとう」の意味として正しいものを選びなさい。',
+          image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=400',
+          imageAlt: 'Japanese thank you',
           options: [
             'Sorry',
             'Thank you',
@@ -97,6 +106,9 @@ function JLPTExercisePage({ onBack, level, user }) {
           type: 'Kanji',
           question: '次の漢字の読み方として最も適当なものを選びなさい。',
           kanji: '学校',
+          image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400',
+          imageAlt: 'School building',
+          mnemonic: '学ぶ場所 = 学校 (Place to learn = school)',
           options: [
             'がっこう',
             'がくこう',
@@ -110,6 +122,8 @@ function JLPTExercisePage({ onBack, level, user }) {
           id: 2,
           type: 'Vocabulary',
           question: '次の文の（　）に入る最も適当な言葉を選びなさい。\n毎朝、公園で（　）をします。',
+          image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400',
+          imageAlt: 'Person jogging in park',
           options: [
             'ジョギング',
             'スイミング',
@@ -166,6 +180,9 @@ function JLPTExercisePage({ onBack, level, user }) {
           type: 'Kanji',
           question: '次の漢字の読み方として最も適当なものを選びなさい。',
           kanji: '経済',
+          image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400',
+          imageAlt: 'Economy and finance',
+          mnemonic: '経験 + 済む = 経済 (Experience + Complete = Economy)',
           options: [
             'けいざい',
             'きょうざい',
@@ -193,6 +210,8 @@ function JLPTExercisePage({ onBack, level, user }) {
           type: 'Reading',
           question: '次の文章の内容として正しいものを選びなさい。',
           passage: '日本の四季は美しいです。春には桜が咲き、夏は海で泳ぎ、秋は紅葉を楽しみ、冬は雪で遊びます。',
+          image: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=400',
+          imageAlt: 'Four seasons in Japan',
           options: [
             '日本には二つの季節があります',
             '春には紅葉が見られます',
@@ -494,6 +513,26 @@ function JLPTExercisePage({ onBack, level, user }) {
           <div className="question-content">
             <h3 className="question-text">{currentQ.question}</h3>
 
+            {currentQ.image && (
+              <div className="question-image-container">
+                <img 
+                  src={currentQ.image} 
+                  alt={currentQ.imageAlt || 'Question illustration'} 
+                  className="question-image"
+                  style={{
+                    width: '100%',
+                    maxWidth: '400px',
+                    height: '250px',
+                    objectFit: 'cover',
+                    borderRadius: '12px',
+                    margin: '1.5rem auto',
+                    display: 'block',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}
+                />
+              </div>
+            )}
+
             {currentQ.kanji && (
               <div style={{
                 fontSize: '3rem',
@@ -506,6 +545,17 @@ function JLPTExercisePage({ onBack, level, user }) {
                 fontWeight: 'bold'
               }}>
                 {currentQ.kanji}
+                {currentQ.mnemonic && (
+                  <div style={{
+                    fontSize: '0.9rem',
+                    color: '#718096',
+                    marginTop: '1rem',
+                    fontWeight: 'normal',
+                    fontStyle: 'italic'
+                  }}>
+                    💡 {currentQ.mnemonic}
+                  </div>
+                )}
               </div>
             )}
 

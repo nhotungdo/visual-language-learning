@@ -26,6 +26,8 @@ function IELTSExercisePage({ onBack, level, user }) {
           id: 1,
           type: 'Vocabulary',
           question: 'What does "happy" mean?',
+          image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400',
+          imageAlt: 'Happy person smiling',
           options: [
             'Sad',
             'Joyful',
@@ -65,6 +67,8 @@ function IELTSExercisePage({ onBack, level, user }) {
           id: 4,
           type: 'Vocabulary',
           question: 'Complete: "I _____ breakfast every morning."',
+          image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=400',
+          imageAlt: 'Breakfast meal',
           options: [
             'eat',
             'sleep',
@@ -94,6 +98,8 @@ function IELTSExercisePage({ onBack, level, user }) {
           type: 'Reading',
           question: 'According to the passage, what is the main benefit of renewable energy?',
           passage: 'Renewable energy sources such as solar and wind power have become increasingly important in the fight against climate change. Unlike fossil fuels, these sources produce minimal greenhouse gas emissions and are virtually inexhaustible.',
+          image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400',
+          imageAlt: 'Solar panels and wind turbines',
           options: [
             'It is cheaper than fossil fuels',
             'It produces minimal greenhouse gas emissions',
@@ -107,6 +113,8 @@ function IELTSExercisePage({ onBack, level, user }) {
           id: 2,
           type: 'Vocabulary',
           question: 'Choose the word that best completes: "The company\'s profits have _____ significantly."',
+          image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400',
+          imageAlt: 'Business growth chart',
           options: [
             'decreased',
             'increased',
@@ -134,6 +142,8 @@ function IELTSExercisePage({ onBack, level, user }) {
           type: 'Reading',
           question: 'What is the author\'s opinion about online learning?',
           passage: 'Online learning offers flexibility and convenience, but it requires strong self-discipline. Students must manage their time effectively and stay motivated without the structure of a traditional classroom.',
+          image: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=400',
+          imageAlt: 'Online learning setup',
           options: [
             'Online learning is perfect for everyone',
             'Online learning has both advantages and challenges',
@@ -163,6 +173,8 @@ function IELTSExercisePage({ onBack, level, user }) {
           type: 'Reading',
           question: 'What does the author suggest about technology in education?',
           passage: 'While technology has revolutionized many aspects of education, it should not replace traditional teaching methods entirely. The most effective approach combines digital tools with face-to-face instruction, allowing students to benefit from both modern innovation and personal interaction.',
+          image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400',
+          imageAlt: 'Technology in education',
           options: [
             'Technology should replace all traditional methods',
             'Technology is not useful in education',
@@ -419,6 +431,26 @@ function IELTSExercisePage({ onBack, level, user }) {
           </div>
 
           <div className="question-content">
+            {currentQ.image && (
+              <div className="question-image-container">
+                <img 
+                  src={currentQ.image} 
+                  alt={currentQ.imageAlt || 'Question illustration'} 
+                  className="question-image"
+                  style={{
+                    width: '100%',
+                    maxWidth: '400px',
+                    height: '250px',
+                    objectFit: 'cover',
+                    borderRadius: '12px',
+                    margin: '1.5rem auto',
+                    display: 'block',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}
+                />
+              </div>
+            )}
+
             {currentQ.passage && (
               <div className="question-passage" style={{
                 background: '#f7fafc',

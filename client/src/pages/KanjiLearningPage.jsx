@@ -15,6 +15,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['イチ', 'イツ'],
         kunyomi: ['ひと', 'ひと.つ'],
         strokes: 1,
+        mnemonic: '一本の横線 = 数字の1 (One horizontal line = number 1)',
+        image: 'https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=300',
         examples: [
           { word: '一つ', reading: 'ひとつ', meaning: 'one (thing)' },
           { word: '一人', reading: 'ひとり', meaning: 'one person' },
@@ -27,6 +29,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['ニ'],
         kunyomi: ['ふた', 'ふた.つ'],
         strokes: 2,
+        mnemonic: '二本の横線 = 数字の2 (Two horizontal lines = number 2)',
+        image: 'https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=300',
         examples: [
           { word: '二つ', reading: 'ふたつ', meaning: 'two (things)' },
           { word: '二人', reading: 'ふたり', meaning: 'two people' },
@@ -39,6 +43,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['サン'],
         kunyomi: ['み', 'み.つ', 'みっ.つ'],
         strokes: 3,
+        mnemonic: '三本の横線 = 数字の3 (Three horizontal lines = number 3)',
+        image: 'https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=300',
         examples: [
           { word: '三つ', reading: 'みっつ', meaning: 'three (things)' },
           { word: '三人', reading: 'さんにん', meaning: 'three people' },
@@ -51,6 +57,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['ニチ', 'ジツ'],
         kunyomi: ['ひ', 'か'],
         strokes: 4,
+        mnemonic: '太陽の形 (Shape of the sun)',
+        image: 'https://images.unsplash.com/photo-1495567720989-cebdbdd97913?w=300',
         examples: [
           { word: '今日', reading: 'きょう', meaning: 'today' },
           { word: '毎日', reading: 'まいにち', meaning: 'every day' },
@@ -63,6 +71,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['ゲツ', 'ガツ'],
         kunyomi: ['つき'],
         strokes: 4,
+        mnemonic: '三日月の形 (Shape of a crescent moon)',
+        image: 'https://images.unsplash.com/photo-1509773896068-7fd415d91e2e?w=300',
         examples: [
           { word: '一月', reading: 'いちがつ', meaning: 'January' },
           { word: '月曜日', reading: 'げつようび', meaning: 'Monday' },
@@ -75,6 +85,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['ジン', 'ニン'],
         kunyomi: ['ひと'],
         strokes: 2,
+        mnemonic: '歩いている人の形 (Shape of a person walking)',
+        image: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=300',
         examples: [
           { word: '人', reading: 'ひと', meaning: 'person' },
           { word: '日本人', reading: 'にほんじん', meaning: 'Japanese person' },
@@ -87,6 +99,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['ホン'],
         kunyomi: ['もと'],
         strokes: 5,
+        mnemonic: '木の根元 (Root of a tree)',
+        image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=300',
         examples: [
           { word: '本', reading: 'ほん', meaning: 'book' },
           { word: '日本', reading: 'にほん', meaning: 'Japan' },
@@ -99,6 +113,8 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
         onyomi: ['ガク'],
         kunyomi: ['まな.ぶ'],
         strokes: 8,
+        mnemonic: '子供が学ぶ (Child learning)',
+        image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300',
         examples: [
           { word: '学校', reading: 'がっこう', meaning: 'school' },
           { word: '学生', reading: 'がくせい', meaning: 'student' },
@@ -242,6 +258,32 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
                 ))}
               </div>
             </div>
+
+            {selectedKanji.mnemonic && (
+              <div className="detail-section">
+                <h3>💡 覚え方 (Mnemonic)</h3>
+                <div className="mnemonic-box">
+                  <p className="mnemonic-text">{selectedKanji.mnemonic}</p>
+                  {selectedKanji.image && (
+                    <img 
+                      src={selectedKanji.image} 
+                      alt={`Mnemonic for ${selectedKanji.kanji}`}
+                      className="mnemonic-image"
+                      style={{
+                        width: '100%',
+                        maxWidth: '250px',
+                        height: '180px',
+                        objectFit: 'cover',
+                        borderRadius: '12px',
+                        margin: '1rem auto',
+                        display: 'block',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="detail-section">
               <h3>音読み (On-yomi)</h3>

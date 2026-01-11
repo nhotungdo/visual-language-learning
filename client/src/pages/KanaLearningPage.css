@@ -278,6 +278,35 @@
   margin-bottom: 1rem;
 }
 
+/* Mnemonic Section */
+.mnemonic-section {
+  background: linear-gradient(135deg, #fff5e6, #ffe5cc);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 2px solid #ffa726;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mnemonic-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.mnemonic-text {
+  color: #d84315;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.character-image {
+  margin: 1rem 0;
+}
+
 .practice-input {
   width: 100%;
   padding: 0.75rem;

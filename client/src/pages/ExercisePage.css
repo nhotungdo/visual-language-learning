@@ -176,6 +176,16 @@
   border-radius: 12px;
   margin: 1.5rem 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.question-image:hover {
+  transform: scale(1.02);
+}
+
+.question-image-container {
+  text-align: center;
+  margin: 1.5rem 0;
 }
 
 .question-audio {
