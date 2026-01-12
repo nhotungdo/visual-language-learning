@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getBestJapaneseVoice, speakJapanese } from '../utils/voiceHelper'
 import './KanaLearningPage.css'
 
 function KanaLearningPage({ onBack, type = 'hiragana' }) {
@@ -7,6 +8,30 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
   const [practiceMode, setPracticeMode] = useState(false)
   const [userInput, setUserInput] = useState('')
   const [feedback, setFeedback] = useState(null)
+  const [quizMode, setQuizMode] = useState(false)
+  const [quizScore, setQuizScore] = useState({ correct: 0, total: 0 })
+  const [masteredChars, setMasteredChars] = useState(new Set())
+  const [voiceReady, setVoiceReady] = useState(false)
+  const [currentVoice, setCurrentVoice] = useState(null)
+
+  // Load giọng đọc khi component mount
+  useEffect(() => {
+    const loadVoices = () => {
+      const voice = getBestJapaneseVoice()
+      if (voice) {
+        setCurrentVoice(voice)
+        setVoiceReady(true)
+        console.log('🎤 Giọng đọc Kana:', voice.name)
+      }
+    }
+
+    loadVoices()
+    
+    // Một số trình duyệt cần thời gian để load giọng
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices
+    }
+  }, [])
 
   // Hiragana chart
   const hiraganaChart = {
@@ -168,19 +193,63 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
     setSelectedChar(char)
     setUserInput('')
     setFeedback(null)
+    playAudio(char.romaji)
+  }
+
+  const playAudio = (romaji) => {
+    if (voiceReady && currentVoice) {
+      speakJapanese(romaji, currentVoice, 0.75)
+    }
   }
 
   const handlePracticeSubmit = () => {
     if (!selectedChar) return
 
-    if (userInput.toLowerCase() === selectedChar.romaji.toLowerCase()) {
+    const isCorrect = userInput.toLowerCase() === selectedChar.romaji.toLowerCase()
+    
+    if (isCorrect) {
       setFeedback({ type: 'correct', message: '正解！' })
+      if (voiceReady && currentVoice) {
+        speakJapanese(selectedChar.romaji, currentVoice, 0.75)
+      }
+      setQuizScore(prev => ({ correct: prev.correct + 1, total: prev.total + 1 }))
+      setMasteredChars(prev => new Set([...prev, selectedChar.kana]))
+      
+      setTimeout(() => {
+        const allChars = Object.values(chart).flat().filter(c => c.kana)
+        const currentIndex = allChars.findIndex(c => c.kana === selectedChar.kana)
+        if (currentIndex < allChars.length - 1) {
+          setSelectedChar(allChars[currentIndex + 1])
+          setUserInput('')
+          setFeedback(null)
+        }
+      }, 1500)
     } else {
       setFeedback({ 
         type: 'incorrect', 
         message: `不正解。正しい答えは「${selectedChar.romaji}」です。` 
       })
+      setQuizScore(prev => ({ correct: prev.correct, total: prev.total + 1 }))
     }
+  }
+
+  const startQuiz = () => {
+    setQuizMode(true)
+    setPracticeMode(true)
+    setQuizScore({ correct: 0, total: 0 })
+    const allChars = Object.values(chart).flat().filter(c => c.kana)
+    const randomChar = allChars[Math.floor(Math.random() * allChars.length)]
+    setSelectedChar(randomChar)
+    setUserInput('')
+    setFeedback(null)
+  }
+
+  const nextQuizQuestion = () => {
+    const allChars = Object.values(chart).flat().filter(c => c.kana)
+    const randomChar = allChars[Math.floor(Math.random() * allChars.length)]
+    setSelectedChar(randomChar)
+    setUserInput('')
+    setFeedback(null)
   }
 
   return (
@@ -203,16 +272,46 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
               <span>ローマ字を表示</span>
             </label>
             <button
-              className={`mode-button ${practiceMode ? 'active' : ''}`}
-              onClick={() => setPracticeMode(!practiceMode)}
+              className={`mode-button ${practiceMode && !quizMode ? 'active' : ''}`}
+              onClick={() => {
+                setPracticeMode(!practiceMode)
+                setQuizMode(false)
+              }}
             >
-              {practiceMode ? '📝 練習モード' : '📖 学習モード'}
+              {practiceMode && !quizMode ? '📝 練習モード' : '📖 学習モード'}
+            </button>
+            <button
+              className={`mode-button ${quizMode ? 'active' : ''}`}
+              onClick={startQuiz}
+            >
+              🎯 クイズモード
             </button>
           </div>
         </div>
       </header>
 
       <main className="kana-content">
+        {quizMode && (
+          <div className="quiz-stats-banner">
+            <div className="quiz-stat">
+              <span className="quiz-stat-label">正解率:</span>
+              <span className="quiz-stat-value">
+                {quizScore.total > 0 
+                  ? `${Math.round((quizScore.correct / quizScore.total) * 100)}%`
+                  : '0%'}
+              </span>
+            </div>
+            <div className="quiz-stat">
+              <span className="quiz-stat-label">スコア:</span>
+              <span className="quiz-stat-value">{quizScore.correct}/{quizScore.total}</span>
+            </div>
+            <div className="quiz-stat">
+              <span className="quiz-stat-label">習得:</span>
+              <span className="quiz-stat-value">{masteredChars.size} 文字</span>
+            </div>
+          </div>
+        )}
+        
         <div className="kana-chart-container">
           <div className="kana-chart">
             {Object.entries(chart).map(([row, chars]) => (
@@ -224,7 +323,7 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
                       key={index}
                       className={`kana-cell ${!char.kana ? 'empty' : ''} ${
                         selectedChar?.kana === char.kana ? 'selected' : ''
-                      }`}
+                      } ${masteredChars.has(char.kana) ? 'mastered' : ''}`}
                       onClick={() => char.kana && handleCharClick(char)}
                     >
                       {char.kana && (
@@ -232,6 +331,9 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
                           <div className="kana-char">{char.kana}</div>
                           {showRomaji && !practiceMode && (
                             <div className="kana-romaji">{char.romaji}</div>
+                          )}
+                          {masteredChars.has(char.kana) && (
+                            <div className="mastered-badge">✓</div>
                           )}
                         </>
                       )}
@@ -281,8 +383,15 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
                   </div>
                 )}
                 
-                <button className="audio-play-button">
+                <button 
+                  className="audio-play-button"
+                  onClick={() => playAudio(selectedChar.romaji)}
+                  disabled={!voiceReady}
+                >
                   🔊 発音を聞く
+                  {voiceReady && currentVoice && (
+                    <span className="voice-info">({currentVoice.name.split(' ')[0]})</span>
+                  )}
                 </button>
 
                 {practiceMode && (
@@ -304,6 +413,14 @@ function KanaLearningPage({ onBack, type = 'hiragana' }) {
                     {feedback && (
                       <div className={`practice-feedback ${feedback.type}`}>
                         {feedback.message}
+                        {quizMode && feedback.type === 'correct' && (
+                          <button 
+                            className="next-question-btn"
+                            onClick={nextQuizQuestion}
+                          >
+                            次の問題 →
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

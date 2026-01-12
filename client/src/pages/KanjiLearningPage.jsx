@@ -1,10 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getBestJapaneseVoice, speakJapanese } from '../utils/voiceHelper'
 import './KanjiLearningPage.css'
 
 function KanjiLearningPage({ onBack, level = 'n5' }) {
   const [selectedKanji, setSelectedKanji] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterLevel, setFilterLevel] = useState(level)
+  const [quizMode, setQuizMode] = useState(false)
+  const [quizScore, setQuizScore] = useState({ correct: 0, total: 0 })
+  const [masteredKanji, setMasteredKanji] = useState(new Set())
+  const [userAnswer, setUserAnswer] = useState('')
+  const [showAnswer, setShowAnswer] = useState(false)
+  const [voiceReady, setVoiceReady] = useState(false)
+  const [currentVoice, setCurrentVoice] = useState(null)
+
+  // Load giọng đọc khi component mount
+  useEffect(() => {
+    const loadVoices = () => {
+      const voice = getBestJapaneseVoice()
+      if (voice) {
+        setCurrentVoice(voice)
+        setVoiceReady(true)
+        console.log('🎤 Giọng đọc Kanji:', voice.name)
+      }
+    }
+
+    loadVoices()
+    
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices
+    }
+  }, [])
 
   // Sample Kanji data by JLPT level
   const kanjiData = {
@@ -173,6 +199,58 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
     k.kunyomi.some(k => k.includes(searchTerm))
   )
 
+  const playKanjiAudio = (text) => {
+    if (voiceReady && currentVoice) {
+      speakJapanese(text, currentVoice, 0.7)
+    }
+  }
+
+  const handleKanjiClick = (kanji) => {
+    setSelectedKanji(kanji)
+    setShowAnswer(false)
+    setUserAnswer('')
+    if (!quizMode && voiceReady && currentVoice) {
+      speakJapanese(kanji.kanji, currentVoice, 0.7)
+    }
+  }
+
+  const startQuiz = () => {
+    setQuizMode(true)
+    setQuizScore({ correct: 0, total: 0 })
+    const randomKanji = allKanji[Math.floor(Math.random() * allKanji.length)]
+    setSelectedKanji(randomKanji)
+    setShowAnswer(false)
+    setUserAnswer('')
+  }
+
+  const checkAnswer = () => {
+    if (!selectedKanji || !userAnswer.trim()) return
+    
+    const isCorrect = selectedKanji.meanings.some(m => 
+      m.toLowerCase().includes(userAnswer.toLowerCase()) ||
+      userAnswer.toLowerCase().includes(m.toLowerCase())
+    )
+    
+    if (isCorrect) {
+      setQuizScore(prev => ({ correct: prev.correct + 1, total: prev.total + 1 }))
+      setMasteredKanji(prev => new Set([...prev, selectedKanji.kanji]))
+      if (voiceReady && currentVoice) {
+        speakJapanese(selectedKanji.kanji, currentVoice, 0.7)
+      }
+    } else {
+      setQuizScore(prev => ({ correct: prev.correct, total: prev.total + 1 }))
+    }
+    
+    setShowAnswer(true)
+  }
+
+  const nextQuestion = () => {
+    const randomKanji = allKanji[Math.floor(Math.random() * allKanji.length)]
+    setSelectedKanji(randomKanji)
+    setShowAnswer(false)
+    setUserAnswer('')
+  }
+
   return (
     <div className="kanji-learning-page">
       <header className="kanji-header">
@@ -193,6 +271,12 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
               <option value="n2">N2 (415 kanji)</option>
               <option value="n1">N1 (1,130 kanji)</option>
             </select>
+            <button
+              className={`mode-button ${quizMode ? 'active' : ''}`}
+              onClick={startQuiz}
+            >
+              🎯 クイズモード
+            </button>
           </div>
         </div>
         <div className="search-bar">
@@ -207,6 +291,27 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
       </header>
 
       <main className="kanji-content">
+        {quizMode && (
+          <div className="quiz-stats-banner">
+            <div className="quiz-stat">
+              <span className="quiz-stat-label">正解率:</span>
+              <span className="quiz-stat-value">
+                {quizScore.total > 0 
+                  ? `${Math.round((quizScore.correct / quizScore.total) * 100)}%`
+                  : '0%'}
+              </span>
+            </div>
+            <div className="quiz-stat">
+              <span className="quiz-stat-label">スコア:</span>
+              <span className="quiz-stat-value">{quizScore.correct}/{quizScore.total}</span>
+            </div>
+            <div className="quiz-stat">
+              <span className="quiz-stat-label">習得:</span>
+              <span className="quiz-stat-value">{masteredKanji.size} 漢字</span>
+            </div>
+          </div>
+        )}
+        
         <div className="kanji-grid-container">
           <div className="kanji-stats">
             <div className="stat-card">
@@ -223,14 +328,19 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
             {filteredKanji.map((k, index) => (
               <div
                 key={index}
-                className={`kanji-card ${selectedKanji?.kanji === k.kanji ? 'selected' : ''}`}
-                onClick={() => setSelectedKanji(k)}
+                className={`kanji-card ${selectedKanji?.kanji === k.kanji ? 'selected' : ''} ${
+                  masteredKanji.has(k.kanji) ? 'mastered' : ''
+                }`}
+                onClick={() => handleKanjiClick(k)}
               >
                 <div className="kanji-char">{k.kanji}</div>
                 <div className="kanji-meanings">
                   {k.meanings.slice(0, 2).join(', ')}
                 </div>
                 <div className="kanji-strokes">{k.strokes} 画</div>
+                {masteredKanji.has(k.kanji) && (
+                  <div className="mastered-badge">✓</div>
+                )}
               </div>
             ))}
           </div>
@@ -311,10 +421,53 @@ function KanjiLearningPage({ onBack, level = 'n5' }) {
                     <div className="example-word">{ex.word}</div>
                     <div className="example-reading">{ex.reading}</div>
                     <div className="example-meaning">{ex.meaning}</div>
+                    <button 
+                      className="example-audio-btn"
+                      onClick={() => playKanjiAudio(ex.word)}
+                      disabled={!voiceReady}
+                      title={voiceReady ? '発音を聞く' : '音声を読み込み中...'}
+                    >
+                      🔊
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
+
+            {quizMode && (
+              <div className="quiz-section">
+                <h3>この漢字の意味は？</h3>
+                <input
+                  type="text"
+                  className="quiz-input"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !showAnswer && checkAnswer()}
+                  placeholder="意味を入力してください"
+                  disabled={showAnswer}
+                />
+                {!showAnswer ? (
+                  <button className="quiz-submit-btn" onClick={checkAnswer}>
+                    確認
+                  </button>
+                ) : (
+                  <div className="quiz-result">
+                    <div className={`quiz-feedback ${
+                      selectedKanji.meanings.some(m => 
+                        m.toLowerCase().includes(userAnswer.toLowerCase())
+                      ) ? 'correct' : 'incorrect'
+                    }`}>
+                      {selectedKanji.meanings.some(m => 
+                        m.toLowerCase().includes(userAnswer.toLowerCase())
+                      ) ? '正解！' : `不正解。正しい答え: ${selectedKanji.meanings.join(', ')}`}
+                    </div>
+                    <button className="next-question-btn" onClick={nextQuestion}>
+                      次の問題 →
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="detail-section">
               <h3>書き順 (Stroke Order)</h3>

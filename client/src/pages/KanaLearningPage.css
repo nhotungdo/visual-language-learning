@@ -172,6 +172,28 @@
   cursor: default;
 }
 
+.kana-cell.mastered {
+  background: #f0fff4;
+  border-color: #48bb78;
+  position: relative;
+}
+
+.mastered-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #48bb78;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
 .kana-char {
   font-size: 2rem;
   font-weight: 500;
@@ -262,6 +284,20 @@
 .audio-play-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(231, 76, 60, 0.3);
+}
+
+.audio-play-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.voice-info {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+  font-weight: 400;
 }
 
 /* Practice Section */
@@ -440,6 +476,56 @@
   }
 }
 
+/* Quiz Stats Banner */
+.quiz-stats-banner {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 2rem;
+}
+
+.quiz-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quiz-stat-label {
+  color: #718096;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.quiz-stat-value {
+  color: #e74c3c;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.next-question-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.next-question-btn:hover {
+  background: #38a169;
+  transform: translateX(4px);
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .kana-content {
@@ -462,6 +548,12 @@
   .kana-controls {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .quiz-stats-banner {
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .kana-content {
